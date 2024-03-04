@@ -37,8 +37,8 @@ printFile = function(file, userName)
 	contents = file.get_content
 	parts = contents.split(":")
 	//pass = crypto.decipher(parts[1])
-	//print("success! Printing file contents for user: "+userName+"...\n" + parts[0]+":"+parts[1]+":"+pass)
-	print("success! Printing file contents for user: "+userName+"...\n" + parts[0]+":"+parts[1])
+	//print("Printing file "+file.name+" for user: "+userName+"...\n" + parts[0]+":"+pass)
+	print("Printing file "+file.name+" for user: "+userName+"...\n" + parts[0]+":"+parts[1])
 end function
 		
 AccessBankComputer = function(computer)
@@ -65,12 +65,11 @@ AccessBankFile = function(homeFolder)
 	for user in folders
 		print("user: "+user.name)
 		if user.name == "guest" then continue
-		for folders in user
-			if folders != "Config" then continue
-			for file in folders.get_files
-				if file.name == "Mail.txt" then print file.get_content
-				if file.name != "Bank.txt" then continue
-				printFile(file, user.name)
+		for userFolder in user.get_folders
+			if userFolder.name != "Config" then continue
+			for file in userFolder.get_files
+				if file.name == "Mail.txt" then printFile(file, user.name)
+				if file.name == "Bank.txt" then printFile(file, user.name)
 			end for
 		end for
 	end for
