@@ -84,30 +84,20 @@ end if
 libName = metaLib.lib_name
 libVersion = metaLib.version
 cacheKey = libName+":"+libVersion
-cached = [ // need to populate these
-	"kernel_router.so:1.0.4:0x4968FC8C,0x6406C347",
-	"kernel_router.so:1.2.0:0x31D78604",
-	"libssh.so:1.0.6:0x31D7A725,0x1FA084E6,0x645B4E3,0x5F6102CB,0x1C735608,0x1DFDF04E",
-	"libssh.so:1.0.9:0x222C5D3E,0x3616B5A4,0x645B4E3,0x32F69C1E,0x6FF61E10,0x5F3BF993",
-	"libhttp.so:1.0.1:0x21525E72,0x3AFC2A9,0x27C269F1,0x6D7E74C4",
-	"libhttp.so:1.0.4:0x587318F1,0x3AFC2A9,0x2AB6927D,0x55C308A0,0x19F2F5A2",
-	"libsql.so:1.0.0:0x3A2521F,0x23630392,0x5287D9BF,0x637DFCAF,0x50BB2F20",
-	"libsql.so:1.0.1:0x3A2521F,0x23630392,0x5287D9BF,0x744F8A7C,0x198665E9",
-	"libsmtp.so:1.0.1:0x7C3E70BE,0x49245130,0x2E8EDD23,0x765CE65A,0x421CF2B2",
-	"libsmtp.so:1.0.2:0x7C3E70BE,0x7143A80B,0xE6F889,0x6B66B09D",
-	"aptclient.so:1.0.2:0x753E5299,0x2C559E9E,0x7A658887,0x23B0B80C,0x1B74F7D6,0x7D39D477",
-	"aptclient.so:1.1.3:0x4E7E9AEC,0x227869C,0x3E042E35,0xE9D606B,0x3E95A5AF",
-	"init.so:1.0.1:0x1BF52FB7,0x23DFEEF4",
-	"init.so:1.1.0:0x4C96D16D,0xE0136EC,0xB6BBB30,0x3361FFCC,0x181DF186",
-	"libcam.so:1.0.3:0x2C9A511,0x6D558D2C,0x5FA97DFD,0x4EE92509,0x55B25F3A,0x47071A1",
-	"libcam.so:1.0.4:0x2C9A511,0x6D558D2C,0x5FA97DFD,0x4EE92509,0x5D6E5157,0x67D791C5",
-	"libchat.so:1.0.0:0x56A978D7,0x7C720496,0x8EF889B",
-	"librepository.so:1.0.0:0x4076EFB8,0x65EE6BB3,0x4B0B11ED",
-	"librepository.so:1.0.9:0x4A367C8",
-	"librshell.so:1.0.0:0x46C1B893,0x73B0BC5B,0x18F8B516,0x75CD23FD,0x6615D5E6,0x5A7546BC,0x658BDF7",
-	"librshell.so:2.4.1:0x4F520ABA,0x16B60406,0x22ECCE6E",
-	"net.so:1.2.2:0x1E38CD39,0x79483B24,0x6D7457D2,0x1DA1843A,0x252952DE",
-]
+cacheFilename = "/lib/acc3ss.txt"
+localComputer=get_shell.host_computer
+cacheFile=localComputer.File(cacheFilename)
+if not cacheFile then
+	localComputer.touch("/lib","acc3ss.txt")
+	cacheFile=localComputer.File(cacheFilename)
+end if
+cached=[]
+useCache = false
+if cacheFile and cacheFile.has_permission("w") then useCache=true
+if useCache then
+	cached = cacheFile.get_content.split("\n")
+end if
+print("cached length="+cached.len)
 mems=[]
 for cache in cached
 	found = cache.matches("^"+cacheKey+".*")
@@ -122,7 +112,19 @@ end for
 if not mems.len then
 	print("Running scan")
 	mems = metaxploit.scan(metaLib)
-	print(cacheKey+":"+mems.join(","))
+	memLine = cacheKey+":"+mems.join(",")
+	print(memLine)
+	if useCache then
+		cacheContent = ""
+		sep = ""
+		for cacheLine in cached
+			if not cacheLine then continue
+			cacheContent = cacheContent + sep + cacheLine
+			sep = char(10)
+		end for
+		cacheContent = cacheContent + sep + memLine
+		cacheFile.set_content(cacheContent)
+	end if
 end if
 
 memExploits = []
