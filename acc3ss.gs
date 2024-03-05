@@ -200,8 +200,8 @@ if shellExps.len > 0 then
 			if typeof(res) == "string" and res.matches("permission denied") then useGuestHomeDir = true
 			guestHomeDir = "/home/guest/"
 			if useGuestHomeDir then destDir = guestHomeDir else destDir = "/bin/"
+			print("Uploading files /bin/")
 			res = localShell.scp("/bin/nmap", destDir, result)
-			print("scp res1: "+res)
 			res = localShell.scp("/bin/acc3ss", destDir, result)
 			res = localShell.scp("/bin/ipscan", destDir, result)
 			res = localShell.scp("/bin/hide", destDir, result)
@@ -210,13 +210,14 @@ if shellExps.len > 0 then
 			res = localShell.scp("/bin/scanrouter", destDir, result)
 			res = localShell.scp("/bin/ssh-server", destDir, result)
 			if useGuestHomeDir then destDir = guestHomeDir else destDir = "/usr/bin/"
+			print("Uploading files /usr/bin/")
 			res = localShell.scp("/usr/bin/ScanLan.exe", destDir, result)
-			print("scp res2: "+res)
 			res = localShell.scp("/usr/bin/AdminMonitor.exe", destDir, result)
 			if useGuestHomeDir then destDir = guestHomeDir else destDir = "/lib/"
+			print("Uploading files /lib/")
 			res = localShell.scp("/lib/crypto.so", destDir, result)
-			print("scp res3: "+res)
 			res = localShell.scp("/lib/metaxploit.so", destDir, result)
+			res = localShell.scp("/lib/acc3ss.txt", destDir, result)
 			break
 		else
 			res = result.launch("/bin/cat", "/etc/passwd")

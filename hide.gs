@@ -4,6 +4,7 @@ fileNames = [
   "/usr/bin/ScanLan.exe",
   "/lib/crypto.so",
   "/lib/metaxploit.so",
+  "/lib/acc3ss.txt",
   "/bin/hide",
   "/bin/nmap",
   "/bin/bank",
