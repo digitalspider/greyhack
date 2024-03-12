@@ -33,6 +33,11 @@ if port.is_match("\.so$") then
 	print("loading local lib: /lib/"+libName)
 	localMetaLib = metaxploit.load("/lib/"+libName)
 	metaLib = localMetaLib
+
+	if action == "-v" then
+		print("/lib/"+libName+": "+metaLib.version)
+		exit()
+	end if
 else
 	net_session = metaxploit.net_use(ip_address, to_int(port))
 	if not net_session then exit("Could not get net session.")
