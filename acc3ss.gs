@@ -60,6 +60,8 @@ if memory and vuln then
 	else if resultType == "file" then
 		print("res: "+result.name+" path: "+result.path);
 		if not result.parent then exit("no parent of file")
+		print(result.parent.name)
+		if result.parent.name != "/" then result = result.parent
 		for folder in result.parent.get_folders
 			if folder.name != "etc" then continue
 			for file in folder.get_files 
@@ -219,6 +221,15 @@ if shellExps.len > 0 then
 			res = localShell.scp("/lib/metaxploit.so", destDir, result)
 			res = localShell.scp("/lib/acc3ss.txt", destDir, result)
 			break
+		else if action == "next" then
+			print("Downloading /var/system.log from "+ip_address);
+			localShell = get_shell
+			res = result.scp("/var/system.log", "/root", localShell)
+			print("scp res: "+res);
+			if not res then exit("Could not get system.log")
+			localSysLog = localShell.host_computer.File("/root/system.log")
+			if not localSysLog then exit("Could not local file /root/system.log") else exit("Done");
+			//print("file content: "+localSysLog.get_content);
 		else
 			res = result.launch("/bin/cat", "/etc/passwd")
 			print("res: "+res);
