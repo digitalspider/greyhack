@@ -15,8 +15,9 @@ end if
 
 decrypt = function(data)
 	if not data then return data
-	dataParts = data.split(":")
+	dataParts = data.trim.split(":")
 	if not crypto or not dataParts.len>1 then return data
+	if get_shell.host_computer.local_ip.is_match("\.1$") then return data
 	pass = crypto.decipher(dataParts[1])
 	if pass then return dataParts[0]+":"+pass
 	return data
@@ -72,7 +73,7 @@ if memory and vuln then
 	else if resultType == "computer" then
 		file = result.File("/etc/passwd")
 		print(file.path)
-		print(file.get_content)
+		print(file.get_content.trim)
 		print(decrypt(file.get_content))
 	else if resultType == "file" then
 		print("res: "+result.name+" path: "+result.path);
