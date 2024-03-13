@@ -1,5 +1,5 @@
 if params.len < 1 or params[0] == "-h" or params[0] == "--help" then 
-    exit("<b>Usage: " + program_path.split("/")[-1] + " [ip_address] [?port] [?conn]</b>")
+    exit("<b>Usage: " + program_path.split("/")[-1] + " [ip_address] [?port=0|*.so] [?action=scp|conn|next|lv]</b>")
 end if
 
 metaxploit = include_lib("/lib/metaxploit.so")
@@ -22,22 +22,34 @@ decrypt = function(data)
 	return data
 end function
 
+printlibver = function(computer)
+	libFolder = computer.File("/lib")
+	if not libFolder then exit("No /lib folder")
+	libFiles = libFolder.get_files
+	for libFile in libFiles
+		if not libFile then continue
+		libName = libFile.name
+		if not libName.is_match("\.so$") then continue
+		metaLib = metaxploit.load("/lib/"+libName)
+		if not metaLib then continue
+		print("/lib/"+libName+": "+metaLib.version)
+	end for
+	exit
+end function
+
 ip_address = params[0]
 if params.len > 1 then port = params[1] else port = "0"
 if params.len > 2 then action = params[2] else action = ""
 if params.len > 3 then memory = params[3] else memory = ""
 if params.len > 4 then vuln = params[4] else vuln = ""
 
+if action == "lv" and not is_valid_ip(ip_address) then printlibver(get_shell.host_computer)
+
 if port.is_match("\.so$") then 
 	libName = port
 	print("loading local lib: /lib/"+libName)
 	localMetaLib = metaxploit.load("/lib/"+libName)
 	metaLib = localMetaLib
-
-	if action == "-v" then
-		print("/lib/"+libName+": "+metaLib.version)
-		exit()
-	end if
 else
 	net_session = metaxploit.net_use(ip_address, to_int(port))
 	if not net_session then exit("Could not get net session.")
@@ -190,7 +202,7 @@ for memExploit in fileExps
 end for
 
 // explioit
-if shellExps.len > 0 then 
+if shellExps.len > 0 and action != "lv" then 
 	print("Found exploits available")
 	for memExploit in shellExps
 		memory = memExploit[0]
@@ -247,6 +259,10 @@ else if computerExps.len > 0 then
 	exploit = compExp[1]
 	print("Running exploit: "+exploit+" memory: "+memory+" ip_address: "+ip_address)
 	result = metaLib.overflow(memory, exploit, ip_address)
+	if action == "lv" then 
+		printlibver(result)
+		exit
+	end if
 	homeFolder = result.File("/home")
 	if not homeFolder then exit("Cannot get home folder")
 	for userFolder in homeFolder.get_folders
