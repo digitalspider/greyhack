@@ -242,12 +242,22 @@ if shellExps.len > 0 and action != "lv" then
 		else if action == "next" then
 			print("Downloading /var/system.log from "+ip_address);
 			localShell = get_shell
+			shellIp = result.host_computer.local_ip
+			print("shellIp:"+shellIp)
+			shellLogFile = result.host_computer.File("/var/system.log")
+			if not shellLogFile then exit("No /var/system.log file available")
+			if not shellLogFile.has_permission("r") then
+				print("Cannot read /var/system.log file. Permission denied")
+				continue
+			end if
 			res = result.scp("/var/system.log", "/root", localShell)
 			print("scp res: "+res);
 			if not res then exit("Could not get system.log")
 			localSysLog = localShell.host_computer.File("/root/system.log")
 			if not localSysLog then exit("Could not local file /root/system.log") else exit("Done");
 			//print("file content: "+localSysLog.get_content);
+			print("Finished trying to get /var/system.log from "+ip_address)
+			exit
 		else
 			res = result.launch("/bin/cat", "/etc/passwd")
 			print("res: "+res);
