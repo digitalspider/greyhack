@@ -108,14 +108,21 @@ cacheFilename = "/lib/acc3ss.txt"
 localComputer=get_shell.host_computer
 cacheFile=localComputer.File(cacheFilename)
 if not cacheFile then
-	localComputer.touch("/lib","acc3ss.txt")
+	cacheFilename = "/home/guest/acc3ss.txt"
 	cacheFile=localComputer.File(cacheFilename)
+	if not cacheFile then
+		print("No acc3ss.txt file found file. Creating a new one")
+		cacheFilename = "/lib/acc3ss.txt"
+		localComputer.touch("/lib","acc3ss.txt")
+		cacheFile=localComputer.File(cacheFilename)
+	end if
 end if
 cached=[]
 useCache = false
-if cacheFile and cacheFile.has_permission("w") then useCache=true
+if cacheFile and cacheFile.has_permission("r") then useCache=true
 if useCache then
 	cached = cacheFile.get_content.split("\n")
+	useCache = cacheFile.has_permission("w")
 end if
 print("cached length="+cached.len)
 mems=[]
